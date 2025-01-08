@@ -4,13 +4,7 @@ import { useMeal } from "@/app/context/MealContext";
 import { useUser } from "@/app/context/UserContext";
 import { useWeek } from "@/app/context/WeekContext";
 import { getDay } from "@/db/dayActions";
-import {
-  batchWriteMeals,
-  getDayIdx,
-  getDefaultDay,
-  getMeals,
-  sortMeals,
-} from "@/lib/dayUtils";
+import { batchWriteMeals, getDayIdx, getDefaultDay, getMeals, sortMeals } from "@/lib/dayUtils";
 import { isCurrentWeek } from "@/lib/weekUtils";
 import { Day } from "@/types/Day";
 import { Week } from "@/types/Week";
@@ -23,7 +17,7 @@ import { Meal } from "@/types/Meal";
 
 const DayPage = ({ date }) => {
   const toast = useToast();
-  const { week, setWeek } = useWeek();
+  const { memoWeek: week, setWeek } = useWeek();
   const { user } = useUser();
   const { mealList, setMealList } = useMeal();
 
@@ -62,11 +56,7 @@ const DayPage = ({ date }) => {
   }, [day]);
 
   const submitHandler = async () => {
-    const dailyCalories =
-      mealList?.reduce(
-        (total: number, meal: Meal) => total + meal.calories,
-        0
-      ) || 0;
+    const dailyCalories = mealList?.reduce((total: number, meal: Meal) => total + meal.calories, 0) || 0;
     const isDayChanged = dailyCalories !== day?.calories_consumed;
     const isMealListChanged = mealList?.length;
 
@@ -111,10 +101,7 @@ const DayPage = ({ date }) => {
       <div className="mx-auto mt-6 sm:mt-20 items-center flex flex-col text-xl w-full">
         <div className="h-full w-full items-center grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 sm:justify-items-center xl:w-3/4">
           {sortMeals(mealList)?.map((meal) => (
-            <MealCard
-              key={meal.meal_id}
-              data={{ meal, day, setDay, readOnly }}
-            />
+            <MealCard key={meal.meal_id} data={{ meal, day, setDay, readOnly }} />
           ))}
         </div>
         <MealInputForm readOnly={readOnly} setSaveReady={setSaveReady} />

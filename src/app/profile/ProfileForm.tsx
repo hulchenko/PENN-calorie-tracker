@@ -31,7 +31,7 @@ interface UserForm {
 const ProfileForm = () => {
   const toast = useToast();
   const { user, setUser } = useUser();
-  const { week, setWeek } = useWeek();
+  const { memoWeek: week, setWeek } = useWeek();
 
   const initUser = useRef<User | null>(null);
 
@@ -137,32 +137,16 @@ const ProfileForm = () => {
   return (
     <form onSubmit={submitHandler}>
       <Card className="w-96 mx-auto mt-32 sm:mt-52">
-        <CardHeader className="text-teal-700 text-3xl font-bold">
-          My Profile
-        </CardHeader>
+        <CardHeader className="text-teal-700 text-3xl font-bold">My Profile</CardHeader>
         <CardBody>
           <FormControl>
             <FormLabel>Name</FormLabel>
             <InputGroup size="lg">
-              <Input
-                focusBorderColor="teal.600"
-                placeholder="Your name"
-                type="text"
-                name="name"
-                value={userForm?.name}
-                onChange={changeHandler}
-              />
+              <Input focusBorderColor="teal.600" placeholder="Your name" type="text" name="name" value={userForm?.name} onChange={changeHandler} />
             </InputGroup>
             <FormLabel className="pt-4">Email Address</FormLabel>
             <InputGroup size="lg">
-              <Input
-                focusBorderColor="teal.600"
-                placeholder="email@example.com"
-                type="email"
-                name="email"
-                value={userForm?.email}
-                onChange={changeHandler}
-              />
+              <Input focusBorderColor="teal.600" placeholder="email@example.com" type="email" name="email" value={userForm?.email} onChange={changeHandler} />
             </InputGroup>
             <FormLabel className="pt-4">Calorie Target</FormLabel>
             <NumberInput
@@ -183,20 +167,10 @@ const ProfileForm = () => {
           </FormControl>
         </CardBody>
         <CardFooter className="justify-end">
-          <Button
-            colorScheme="teal"
-            mr={3}
-            type="submit"
-            isDisabled={!interacted}
-          >
+          <Button colorScheme="teal" mr={3} type="submit" isDisabled={!interacted}>
             Update
           </Button>
-          <Button
-            colorScheme="gray"
-            mr={3}
-            onClick={cancelHandler}
-            isDisabled={!interacted}
-          >
+          <Button colorScheme="gray" mr={3} onClick={cancelHandler} isDisabled={!interacted}>
             Cancel
           </Button>
         </CardFooter>

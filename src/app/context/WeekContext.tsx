@@ -1,64 +1,46 @@
 "use client";
 
-import { getWeeks } from "@/db/weekActions";
-import { defaultWeek, firstWeekDay } from "@/lib/weekUtils";
+import { processWeekData } from "@/lib/weekUtils";
 import { Week } from "@/types/Week";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import useSWR from "swr";
 import { useSession } from "./SessionProvider";
-import moment from "moment";
 
 export const WeekProvider = ({ children }) => {
-  const { session } = useSession();
-
   const [week, setWeek] = useState<Week | null>(null);
   const [prevWeeks, setPrevWeeks] = useState<Week[]>([]);
 
-  useEffect(() => {
-    const userId = session?.user?.user_id as string;
-    const fetchWeek = async () => {
-      const weeksDB = await getWeeks(userId);
-      if (weeksDB.length > 0) {
-        const curr =
-          weeksDB.find((week) => {
-            const incWeekStart = moment.utc(week.start_date).format("L");
-            const currWeekStart = moment.utc(firstWeekDay).format("L");
-            return incWeekStart === currWeekStart;
-          }) || defaultWeek(userId);
+  const { session } = useSession();
+  const userId = session?.user?.user_id || "";
 
-        const prev = weeksDB.filter((week) => {
-          const incWeekStart = moment.utc(week.start_date).format("L");
-          const currWeekStart = moment.utc(firstWeekDay).format("L");
-          return incWeekStart !== currWeekStart;
-        });
+  const fetcher = useCallback(async () => {
+    const res = await fetch(`/api/db/week?userId=${userId}`);
+    const data = await res.json();
+    return data;
+  }, [userId]);
 
-        setWeek(curr);
-        setPrevWeeks(prev);
-      } else {
-        const initWeek = defaultWeek(userId);
-        setWeek(initWeek);
-        setPrevWeeks([]);
-      }
-    };
-    if (userId) {
-      fetchWeek();
-    }
-  }, [session]);
+  useSWR("/api/db/week", fetcher, {
+    onSuccess: (data: any) => {
+      const { curr, prev } = processWeekData(data, userId);
+      setWeek(curr);
+      setPrevWeeks(prev);
+    },
+  });
 
-  return (
-    <WeekContext.Provider value={{ week, prevWeeks, setWeek, setPrevWeeks }}>
-      {children}
-    </WeekContext.Provider>
-  );
+  const memoWeek = useMemo(() => week, [week]);
+  const memoPrevWeeks = useMemo(() => prevWeeks, [prevWeeks]);
+
+  return <WeekContext.Provider value={{ memoWeek, memoPrevWeeks, setWeek, setPrevWeeks }}>{children}</WeekContext.Provider>;
 };
 
 const WeekContext = createContext<{
-  week: Week | null;
-  prevWeeks: Week[];
+  memoWeek: Week | null;
+  memoPrevWeeks: Week[];
   setWeek: (week: Week | null) => void;
-  setPrevWeeks: (prevWeek: Week[]) => void;
+  setPrevWeeks: (prevWeeks: Week[]) => void;
 }>({
-  week: null,
-  prevWeeks: [],
+  memoWeek: null,
+  memoPrevWeeks: [],
   setWeek: () => {},
   setPrevWeeks: () => {},
 }); // define passing value
