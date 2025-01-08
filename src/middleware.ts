@@ -12,13 +12,13 @@ export default async function middleware(request: NextRequest) {
   const session = await verifySession();
   const userId = session?.user?.user_id;
 
-  if (isProtectedRoute && !userId) {
-    // not authorized + attempt to access protected routes -> default to /login
+  if ((requestedUrl === "/" || isProtectedRoute) && !userId) {
+    // not authorized + attempt to access protected routes or "/" -> default to /login
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
 
-  if (isAuthRoute && userId) {
-    // authorized + route attempt to access /login -> default to /dashboard
+  if ((requestedUrl === "/" || isAuthRoute) && userId) {
+    // authorized + route attempt to access "/login" or "/" -> default to /dashboard
     return NextResponse.redirect(new URL("/dashboard", request.nextUrl));
   }
   return NextResponse.next();
