@@ -9,16 +9,8 @@ import { updateWeek } from "@/db/weekActions";
 const weekStart = moment.utc().startOf("isoWeek"); // '2024-09-09'
 const weekEnd = moment.utc().endOf("isoWeek"); // '2024-09-15'
 
-export const firstWeekDay = weekStart
-  .clone()
-  .seconds(0)
-  .milliseconds(0)
-  .toISOString();
-export const lastWeekDay = weekEnd
-  .clone()
-  .seconds(0)
-  .milliseconds(0)
-  .toISOString();
+export const firstWeekDay = weekStart.clone().seconds(0).milliseconds(0).toISOString();
+export const lastWeekDay = weekEnd.clone().seconds(0).milliseconds(0).toISOString();
 
 export const defaultWeek = (userId: string): Week => {
   const start = weekStart.clone().seconds(0).milliseconds(0).toISOString();
@@ -34,9 +26,7 @@ export const defaultWeek = (userId: string): Week => {
 
 export const generateWeek = (week: Week | null = null) => {
   const generatedWeek: Array<any> = [];
-  const start = week
-    ? moment.utc(week.start_date).startOf("isoWeek")
-    : weekStart;
+  const start = week ? moment.utc(week.start_date).startOf("isoWeek") : weekStart;
   const end = week ? moment.utc(week.start_date).endOf("isoWeek") : weekEnd;
 
   let dayOfWeek = start.clone(); // initialize first week day from the given week
@@ -81,15 +71,12 @@ const generateWeeklyTargets = () => {
 
 export const goalReduce = (weeklyGoal: object): number => {
   if (weeklyGoal) {
-    const result = Object.values(weeklyGoal).reduce(
-      (goals: any, goalMet: boolean) => {
-        if (goalMet) {
-          goals++;
-        }
-        return goals;
-      },
-      0
-    );
+    const result = Object.values(weeklyGoal).reduce((goals: any, goalMet: boolean) => {
+      if (goalMet) {
+        goals++;
+      }
+      return goals;
+    }, 0);
     return result as number;
   }
   return 0;
@@ -104,9 +91,7 @@ export const generateGreeting = (name = "User") => {
   const currentHour = new Date(Date.now()).getHours();
   const morning = currentHour >= 3 && currentHour < 12;
   const afternoon = currentHour >= 12 && currentHour < 17;
-  const evening =
-    (currentHour >= 17 && currentHour <= 23) ||
-    (currentHour >= 0 && currentHour < 3);
+  const evening = (currentHour >= 17 && currentHour <= 23) || (currentHour >= 0 && currentHour < 3);
   if (morning && name) {
     return `Good Morning, ${name} 🌅`;
   }
@@ -122,4 +107,23 @@ export const generateGreeting = (name = "User") => {
 export const isCurrentWeek = (date: string) => {
   const targetDate = moment.utc(date);
   return targetDate >= weekStart && targetDate <= weekEnd;
+};
+
+export const processWeekData = (data: Week[], userId: string) => {
+  if (data.length > 0) {
+    const curr =
+      data.find((week) => {
+        const incWeekStart = moment.utc(week.start_date).format("L");
+        const currWeekStart = moment.utc(firstWeekDay).format("L");
+        return incWeekStart === currWeekStart;
+      }) || defaultWeek(userId);
+    const prev = data.filter((week) => {
+      const incWeekStart = moment.utc(week.start_date).format("L");
+      const currWeekStart = moment.utc(firstWeekDay).format("L");
+      return incWeekStart !== currWeekStart;
+    });
+    return { curr, prev };
+  } else {
+    return { curr: defaultWeek(userId), prev: [] };
+  }
 };
