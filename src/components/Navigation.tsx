@@ -38,10 +38,7 @@ const Navigation = () => {
   return (
     <>
       <div className="flex justify-between items-center bg-teal-800 p-4 text-white lg:px-24">
-        <Link
-          href={"/"}
-          className="flex items-center cursor-pointer text-2xl hover:text-teal-200"
-        >
+        <Link href={session ? "/dashboard" : "/login"} className="flex items-center cursor-pointer text-2xl hover:text-teal-200">
           <FontAwesomeIcon className="h-10 pr-4" icon={faWeightScale} />
           <h3 className="hidden sm:block">Calorie Tracker</h3>
         </Link>
@@ -50,39 +47,23 @@ const Navigation = () => {
             <>
               <li className="hover:text-teal-200">
                 <Link href={"/dashboard"}>
-                  <Text
-                    className={
-                      currentPath === "/dashboard" ? "text-teal-200" : ""
-                    }
-                  >
-                    Dashboard
-                  </Text>
+                  <Text className={currentPath === "/dashboard" ? "text-teal-200" : ""}>Dashboard</Text>
                 </Link>
               </li>
               <li className="hover:text-teal-200">
                 <Link href={"/profile"}>
-                  <Text
-                    className={
-                      currentPath === "/profile" ? "text-teal-200" : ""
-                    }
-                  >
-                    Profile
-                  </Text>
+                  <Text className={currentPath === "/profile" ? "text-teal-200" : ""}>Profile</Text>
                 </Link>
               </li>
             </>
           )}
           <li className="hover:text-teal-200">
             <Link href={"/about"}>
-              <Text className={currentPath === "/about" ? "text-teal-200" : ""}>
-                About
-              </Text>
+              <Text className={currentPath === "/about" ? "text-teal-200" : ""}>About</Text>
             </Link>
           </li>
           <li className="hover:text-teal-200">
-            <button onClick={authStateHandler}>
-              {session ? "Sign Out" : "Sign In"}
-            </button>
+            <button onClick={authStateHandler}>{session ? "Sign Out" : "Sign In"}</button>
           </li>
         </ul>
       </div>
