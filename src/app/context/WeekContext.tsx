@@ -14,9 +14,11 @@ export const WeekProvider = ({ children }) => {
   const userId = session?.user?.user_id || "";
 
   const fetcher = useCallback(async () => {
-    const res = await fetch(`/api/db/week?userId=${userId}`);
-    const data = await res.json();
-    return data;
+    if (userId) {
+      const res = await fetch(`/api/db/week?userId=${userId}`);
+      const data = await res.json();
+      return data;
+    }
   }, [userId]);
 
   useSWR("/api/db/week", fetcher, {
